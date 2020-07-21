@@ -1,0 +1,62 @@
+/* 时间:2020-7-21
+ * 背景：广发研发中心笔试题居然没做出来，笔试完马上又重做了一下，其实挺简单的自己脑子抽了。笔试可能要凉了
+ * 题目：罗马数字转换成阿拉伯数字
+ * 规则：
+ * 1.相同的数字连写、所表示的数等于这些数字相加得到的数、如：Ⅲ=3；
+ * 2.小的数字在大的数字的右边、所表示的数等于这些数字相加得到的数、 如：Ⅷ=8、Ⅻ=12；
+ * 3.小的数字（限于 I、X 和 C）在大的数字的左边、所表示的数等于大数减小数得到的数、如：Ⅳ=4、Ⅸ=9；
+ * 4.正常使用时、连写的数字重复不得超过三次；
+ * 5.I,X,C,M,V,L,D 分别代表1,10,100,1000,5,50,500
+ * 
+ * 思路：
+ * 关键一：理解规则，其中重点在于第三条规则：小的数在大的数左边时，要加上右边的数，减去左边的数。
+ * 而且小的数只限定于I、X和C，也就是说如果一个数是I，X，C时，要结合后续的数一起判断。而且第二个数只需要
+ * 满足比第一个数大即可，即使它也是I、X、C其中之一。
+ *
+ * 关键二：当一个数不属于I、X、C时，必然要相加。这条很好理解，见到其他数无脑加就对了
+ * 
+ * 关键三：假设一个罗马数字为IXX，表示19，我们已经根据第一位的I比X小判断得知，第二位的X要做相加操作，所以
+ * 第二位的X不能继续与第三位的X结合判断了，应该跳过第二位X，这个在代码实现时很容易被忽略掉
+ * 
+ * 关键四：与阿拉伯数字不相同的是，每一个罗马数字都代表一个具体的数值，不需要关注它的位数。而阿拉伯数字中，一个
+ * 数字的实际大小与其所在位数有关系。所以罗马数字在相加和相减时，无需进行额外的操作。
+ * */
+
+public class Main {
+public static int transfer(String number) {
+		HashMap<Character,Integer> hp = new HashMap<>();
+        hp.put('I',1);
+        hp.put('X',10);
+        hp.put('C',100);
+        hp.put('M',1000);
+        hp.put('V',5);
+        hp.put('L',50);
+        hp.put('D',500);
+        int length = number.length();
+        int sum = 0;
+        for(int i=0;i<length-1;i++) { // 不取到最后一个元素是因为每次都需要两个字符共同判断，为了避免数组越界
+        	char word1 = number.charAt(i);
+        	char word2 = number.charAt(i+1);
+        	if(word1!='I' && word1!='X' && word1!='C') { //不等于这三种字符无脑加
+        		sum += hp.get(word1);
+        		continue;
+        	}else if(hp.get(word2)<=hp.get(word1)) { //根据后续判断字符判断
+        		sum += hp.get(word1);
+        		continue;
+        	}else {
+        		sum -= hp.get(word1);
+        		sum += hp.get(word2);
+        		i++;  // 要跳过下一个字符
+        		if(i==number.length()-1) { //如果已经是最后一个字符，要直接返回
+        			return sum;
+        		}
+        	}
+        }
+        sum += hp.get(number.charAt(length-1)); //如果倒数第二个字符不是相减的话，最后一个字符是还没有处理的，这里要加上，因为已经没有后续字符，不需要判断直接加
+        return sum;
+        }
+	public static void main(String[] args) {
+		int result = transfer("MCMXCIV");
+		System.out.println(result);
+    }
+}
