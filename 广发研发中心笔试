@@ -60,3 +60,4 @@ public static int transfer(String number) {
 		System.out.println(result);
     }
 }
+
